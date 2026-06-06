@@ -1,19 +1,31 @@
 <?php
-define('LARAVEL_START', microtime(true));
-
 $root = dirname(__DIR__);
 chdir($root);
 
 require $root . '/vendor/autoload.php';
 
-$app = require_once $root . '/bootstrap/app.php';
+// Force stderr logging before bootstrap
+putenv('LOG_CHANNEL=stderr');
+$_ENV['LOG_CHANNEL'] = 'stderr';
+$_SERVER['LOG_CHANNEL'] = 'stderr';
 
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+try {
+    $app = require_once $root . '/bootstrap/app.php';
+    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    $request = Illuminate\Http\Request::capture();
+    $response = $kernel->handle($request);
+    
+    echo json_encode([
+        'status' => 'OK',
+        'http_status' => $response->getStatusCode(),
+        'content' => substr($response->getContent(), 0, 300),
+    ]);
 
-$response = $kernel->handle(
-    $request = Illuminate\Http\Request::capture()
-);
-
-$response->send();
-
-$kernel->terminate($request, $response);
+} catch (\Throwable $e) {
+    echo json_encode([
+        'error' => $e->getMessage(),
+        'class' => get_class($e),
+        'file'  => str_replace($root, '', $e->getFile()),
+        'line'  => $e->getLine(),
+    ]);
+}
