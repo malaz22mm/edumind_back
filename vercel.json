@@ -11,5 +11,6 @@
             "src": "/(.*)",
             "dest": "/api/index.php"
         }
-    ]
+    ],
+    "buildCommand": "composer install --no-dev --optimize-autoloader && php artisan package:discover --ansi"
 }
