@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Avatar Upload Disk
+    |--------------------------------------------------------------------------
+    |
+    | Use s3 (or another cloud disk) on serverless platforms where the local
+    | filesystem is ephemeral. Defaults to FILESYSTEM_DISK when not set.
+    |
+    */
+
+    'avatar_disk' => env('AVATAR_DISK', env('FILESYSTEM_DISK', 'public')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
@@ -41,7 +53,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => env('AWS_URL', rtrim(env('APP_URL', 'http://localhost'), '/').'/storage'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

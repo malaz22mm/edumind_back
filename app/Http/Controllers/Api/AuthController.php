@@ -119,7 +119,7 @@ class AuthController extends Controller
                     'studentprofile',
                     'interests',
                     'skillProgress.skill',
-                    'learningTopics',
+                    'learningGoals.topic',
                 ])
                 ->first();
 

@@ -34,6 +34,9 @@ class ProfileController extends Controller
             ], 409);
         }
 
+        $avatarPath = null;
+        $avatarDisk = (string) config('filesystems.avatar_disk', 'public');
+
         try {
             $validated = $request->validate([
                 'name' => ['required', 'string', 'min:2', 'max:255'],
@@ -49,11 +52,9 @@ class ProfileController extends Controller
                 'learning_topics.*' => ['integer', 'exists:learning_topics,id'],
             ]);
 
-            $avatarPath = null;
-
-            $student = DB::transaction(function () use ($request, $user, $validated, &$avatarPath) {
+            $student = DB::transaction(function () use ($request, $user, $validated, &$avatarPath, $avatarDisk) {
                 if ($request->hasFile('avatar')) {
-                    $avatarPath = $request->file('avatar')->store('students/avatars', 'public');
+                    $avatarPath = $request->file('avatar')->store('students/avatars', $avatarDisk);
                 }
 
                 $student = Student::create([
@@ -100,7 +101,7 @@ class ProfileController extends Controller
                 'interests',
                 'studentprofile',
                 'skillProgress.skill',
-                'learningTopics',
+                'learningGoals.topic',
             ]);
 
             $user->setRelation('student', $student);
@@ -123,7 +124,7 @@ class ProfileController extends Controller
 
         } catch (Throwable $e) {
             if (! empty($avatarPath)) {
-                Storage::disk('public')->delete($avatarPath);
+                Storage::disk($avatarDisk)->delete($avatarPath);
             }
 
             Log::error('Complete profile error', [
