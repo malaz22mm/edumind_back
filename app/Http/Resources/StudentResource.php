@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
+
+class StudentResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function toArray(Request $request): array|null
+    {
+        if ($this->resource === null) {
+            return null;
+        }
+
+        return [
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'name' => $this->name,
+            'gender' => $this->gender,
+            'birth_date' => $this->birth_date,
+            'avatar' => $this->avatar
+                ? Storage::disk(config('filesystems.avatar_disk', 'public'))->url($this->avatar)
+                : null,
+            'grade' => $this->grade ? new GradeResource($this->grade) : null,
+            'interests' => $this->relationLoaded('interests')
+                ? InterestResource::collection($this->interests)
+                : [],
+            'skill_progress' => StudentSkillProgressResource::collection($this->skillProgress),
+            'learning_topics' => $this->relationLoaded('learningGoals')
+                ? StudentLearningTopicResource::collection($this->learningGoals)
+                : [],
+            'profile' => $this->studentprofile ? new StudentProfileResource($this->studentprofile) : null,
+
+        ];
+    }
+}

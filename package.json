@@ -1,0 +1,25 @@
+{
+    "version": 2,
+    "framework": null,
+    "buildCommand": "echo \"Laravel API\"",
+    "functions": {
+      "api/index.php": {
+        "runtime": "vercel-php@0.9.0",
+        "maxDuration": 30
+      }
+    },
+    "routes": [
+      {
+        "src": "/build/(.*)",
+        "dest": "/public/build/$1"
+      },
+      {
+        "src": "/(.*\\.(css|js|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|txt|json|xml|map))",
+        "dest": "/public/$1"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/api/index.php"
+      }
+    ]
+  }
